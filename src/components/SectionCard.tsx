@@ -31,6 +31,7 @@ import {
 interface SectionCardProps {
   section: Section;
   dragHandleProps?: any;
+  isDraggingAnySection?: boolean;
 }
 
 // Wrapper to make each link card sortable
@@ -74,7 +75,7 @@ function SortableLinkItem({ link }: { link: Link }) {
   );
 }
 
-export function SectionCard({ section, dragHandleProps }: SectionCardProps) {
+export function SectionCard({ section, dragHandleProps, isDraggingAnySection = false }: SectionCardProps) {
   // Read all links in this section from IndexedDB
   const links = useLiveQuery(
     async () => {
@@ -225,32 +226,43 @@ export function SectionCard({ section, dragHandleProps }: SectionCardProps) {
         </div>
       </div>
 
-      {/* Sortable List of Links */}
-      <div className="flex-1 mt-4">
-        {links.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 px-4 rounded-xl border border-dashed border-border text-center">
-            <span className="text-xs text-muted-foreground mb-2">No bookmarks in this section</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAddLinkOpen(true)}
-              className="text-[11px] h-7 px-3 bg-muted/40 border-border"
-            >
-              Add Link
-            </Button>
-          </div>
-        ) : (
-          <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-            <SortableContext items={links.map(l => l.id!)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-2">
-                {links.map(link => (
-                  <SortableLinkItem key={link.id} link={link} />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
+      {/* Sortable List of Links (Hidden when dragging sections to maximize performance and screen visibility) */}
+      {!isDraggingAnySection && (
+        <div className="flex-1 mt-4">
+          {links.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 px-4 rounded-xl border border-dashed border-border text-center">
+              <span className="text-xs text-muted-foreground mb-2">No bookmarks in this section</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddLinkOpen(true)}
+                className="text-[11px] h-7 px-3 bg-muted/40 border-border"
+              >
+                Add Link
+              </Button>
+            </div>
+          ) : (
+            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+              <SortableContext items={links.map(l => l.id!)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2">
+                  {links.map(link => (
+                    <SortableLinkItem key={link.id} link={link} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
+        </div>
+      )}
+
+      {/* Compact Placement Indicator when sorting sections */}
+      {isDraggingAnySection && (
+        <div className="mt-4 py-5 px-4 rounded-xl border border-dashed border-border/70 bg-muted/20 text-center select-none">
+          <span className="text-xs font-semibold text-muted-foreground font-mono">
+            {links.length} {links.length === 1 ? 'bookmark' : 'bookmarks'}
+          </span>
+        </div>
+      )}
 
       {/* ====================================================================
           ADD LINK DIALOG

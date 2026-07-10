@@ -78,7 +78,7 @@ export function LinkItem({ link }: LinkItemProps) {
   const letterAvatar = link.title ? link.title.charAt(0).toUpperCase() : '?';
 
   return (
-    <div className={`group relative flex items-center justify-between rounded-xl border border-white/60 dark:border-white/5 bg-white/40 dark:bg-card/45 backdrop-blur-md hover:bg-white/75 dark:hover:bg-card/65 hover:border-violet-500/20 dark:hover:border-violet-500/20 hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 ${hideHostnames ? 'p-2' : 'p-3.5'}`}>
+    <div className={`group relative flex items-center justify-between rounded-xl border border-white/60 dark:border-white/5 bg-white/40 dark:bg-card/45 backdrop-blur-md hover:bg-white/75 dark:hover:bg-card/65 hover:border-violet-500/20 dark:hover:border-violet-500/20 hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 ${hideHostnames ? 'p-1.5' : 'p-2'}`}>
       
       {/* Link Content Area */}
       <a

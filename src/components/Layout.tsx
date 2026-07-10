@@ -231,7 +231,7 @@ export function Layout({ activePageId, setActivePageId, children }: LayoutProps)
       {/* ====================================================================
           TOP NAVIGATION HEADER
           ==================================================================== */}
-      <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md select-none">
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-white/70 dark:bg-slate-950/75 backdrop-blur-md select-none shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between gap-4">
           
           {/* Logo Branding */}
@@ -286,7 +286,7 @@ export function Layout({ activePageId, setActivePageId, children }: LayoutProps)
       {/* ====================================================================
           PAGES TAB SWITCHER (WORKSPACE BAR)
           ==================================================================== */}
-      <section className="border-b border-border bg-muted/20">
+      <section className="sticky top-16 z-30 border-b border-border bg-white/45 dark:bg-slate-950/50 backdrop-blur-sm select-none shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 overflow-x-auto scrollbar pb-1 md:pb-0">
             {pages.length > 0 && (

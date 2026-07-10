@@ -11,7 +11,9 @@ import {
   useSensor,
   PointerSensor,
   TouchSensor,
-  type DragEndEvent
+  DragOverlay,
+  type DragEndEvent,
+  type DragStartEvent
 } from '@dnd-kit/core';
 import { useSortable, SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -30,7 +32,7 @@ interface PageGridProps {
 }
 
 // Wrapper to make sections sortable in the grid
-function SortableSection({ section }: { section: Section }) {
+function SortableSection({ section, isDraggingAnySection }: { section: Section; isDraggingAnySection: boolean }) {
   const {
     attributes,
     listeners,
@@ -46,15 +48,26 @@ function SortableSection({ section }: { section: Section }) {
     zIndex: isDragging ? 10 : 1
   };
 
+  if (isDragging) {
+    return (
+      <div 
+        ref={setNodeRef}
+        style={style}
+        className="break-inside-avoid mb-6 min-h-[220px] w-full rounded-2xl border border-dashed border-violet-500/25 bg-violet-500/5 backdrop-blur-sm"
+      />
+    );
+  }
+
   return (
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`relative group h-full ${isDragging ? 'opacity-40 shadow-2xl scale-[1.01]' : ''}`}
+      className={`relative group break-inside-avoid mb-6 h-auto`}
     >
       <SectionCard 
         section={section} 
         dragHandleProps={{ ...attributes, ...listeners }} 
+        isDraggingAnySection={isDraggingAnySection}
       />
     </div>
   );
@@ -73,13 +86,13 @@ export function PageGrid({ activePageId }: PageGridProps) {
     [activePageId]
   ) || [];
 
-  // Columns count mappings for standard Grid layout
+  // Columns count mappings for Masonry columns layout
   const columnsClass = {
-    2: 'grid grid-cols-1 md:grid-cols-2 gap-6 items-start',
-    3: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start',
-    4: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start',
-    5: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 items-start'
-  }[columnsCount as 2 | 3 | 4 | 5] || 'grid grid-cols-1 md:grid-cols-3 gap-6 items-start';
+    2: 'columns-1 md:columns-2 gap-6',
+    3: 'columns-1 md:columns-2 lg:columns-3 gap-6',
+    4: 'columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6',
+    5: 'columns-1 md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6'
+  }[columnsCount as 2 | 3 | 4 | 5] || 'columns-1 md:columns-3 gap-6';
 
   // Setup sensors for click safety
   const sensors = useSensors(
@@ -96,7 +109,15 @@ export function PageGrid({ activePageId }: PageGridProps) {
     })
   );
 
+  const [activeId, setActiveId] = React.useState<number | null>(null);
+  const isDraggingAnySection = activeId !== null;
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -140,18 +161,22 @@ export function PageGrid({ activePageId }: PageGridProps) {
           </Button>
         </div>
       ) : (
-        // Sections Grid using Standard Grid
-        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        // Sections Grid using Masonry Columns
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <SortableContext items={sections.map(s => s.id!)} strategy={rectSortingStrategy}>
             <div className={columnsClass}>
               {sections.map(section => (
-                <SortableSection key={section.id} section={section} />
+                <SortableSection 
+                  key={section.id} 
+                  section={section} 
+                  isDraggingAnySection={isDraggingAnySection}
+                />
               ))}
 
               {/* Quick Add Section Card */}
               <button
                 onClick={() => setIsAddSectionOpen(true)}
-                className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm"
+                className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm break-inside-avoid mb-6"
               >
                 <div className="h-10 w-10 rounded-full bg-card border border-border group-hover:border-violet-500/25 flex items-center justify-center mb-3 transition-colors">
                   <Plus className="h-5 w-5 group-hover:text-violet-400" />
@@ -160,6 +185,17 @@ export function PageGrid({ activePageId }: PageGridProps) {
               </button>
             </div>
           </SortableContext>
+
+          <DragOverlay adjustScale={true}>
+            {activeId ? (
+              <div className="opacity-90 scale-[1.02] shadow-2xl pointer-events-none w-full">
+                <SectionCard 
+                  section={sections.find(s => s.id === activeId)!} 
+                  isDraggingAnySection={true}
+                />
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       )}
 
