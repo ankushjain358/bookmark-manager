@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "LinkHub",
+  "version": "1.0.0",
+  "description": "Local-first bookmark and start-page organizer.",
+  "permissions": [
+    "favicon",
+    "activeTab"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "action": {
+    "default_title": "LinkHub"
+  }
+}
