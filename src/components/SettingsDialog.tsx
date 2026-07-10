@@ -229,7 +229,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => jsonInputRef.current?.click()}
-                  className="h-8.5 text-xs font-semibold gap-1.5"
+                  className="h-10 text-xs font-semibold gap-1.5"
                 >
                   <FileUp className="h-3.5 w-3.5" />
                   Import JSON
@@ -238,7 +238,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={handleExportJson}
-                  className="h-8.5 text-xs font-semibold gap-1.5 border-border bg-transparent hover:bg-muted/40"
+                  className="h-10 text-xs font-semibold gap-1.5 border-border bg-transparent hover:bg-muted/40"
                 >
                   <FileDown className="h-3.5 w-3.5" />
                   Export JSON
@@ -259,7 +259,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => htmlInputRef.current?.click()}
-                  className="h-8.5 text-xs font-semibold gap-1.5"
+                  className="h-10 text-xs font-semibold gap-1.5"
                   title="Folders deeper than 2 levels will be flattened into tags"
                 >
                   <FileUp className="h-3.5 w-3.5" />
@@ -269,7 +269,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                   variant="outline"
                   size="sm"
                   onClick={handleExportHtml}
-                  className="h-8.5 text-xs font-semibold gap-1.5 border-border bg-transparent hover:bg-muted/40"
+                  className="h-10 text-xs font-semibold gap-1.5 border-border bg-transparent hover:bg-muted/40"
                   title="Tags are not preserved in Netscape HTML standard format"
                 >
                   <FileDown className="h-3.5 w-3.5" />

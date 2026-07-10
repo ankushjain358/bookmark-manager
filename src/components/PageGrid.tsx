@@ -3,7 +3,7 @@ import { type Section, db } from '../db/schema';
 import { addSection } from '../db/operations';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { SectionCard } from './SectionCard';
-import { Plus, GripHorizontal } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import {
   DndContext,
@@ -50,19 +50,12 @@ function SortableSection({ section }: { section: Section }) {
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`relative group break-inside-avoid mb-6 h-auto ${isDragging ? 'opacity-40 shadow-2xl scale-[1.01]' : ''}`}
+      className={`relative group h-full ${isDragging ? 'opacity-40 shadow-2xl scale-[1.01]' : ''}`}
     >
-      {/* Section drag handle - overlayed next to options dropdown */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="absolute top-[26px] right-24 cursor-grab active:cursor-grabbing p-1.5 text-slate-500 hover:text-slate-200 focus:outline-none rounded shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-card/85 border border-border shadow-sm"
-        title="Drag to reorder section"
-      >
-        <GripHorizontal className="h-3.5 w-3.5" />
-      </button>
-
-      <SectionCard section={section} />
+      <SectionCard 
+        section={section} 
+        dragHandleProps={{ ...attributes, ...listeners }} 
+      />
     </div>
   );
 }
@@ -80,13 +73,13 @@ export function PageGrid({ activePageId }: PageGridProps) {
     [activePageId]
   ) || [];
 
-  // Columns count mappings for Masonry columns layout
+  // Columns count mappings for standard Grid layout
   const columnsClass = {
-    2: 'columns-1 md:columns-2 gap-6',
-    3: 'columns-1 md:columns-2 lg:columns-3 gap-6',
-    4: 'columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6',
-    5: 'columns-1 md:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-6'
-  }[columnsCount as 2 | 3 | 4 | 5] || 'columns-1 md:columns-3 gap-6';
+    2: 'grid grid-cols-1 md:grid-cols-2 gap-6 items-start',
+    3: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start',
+    4: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start',
+    5: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 items-start'
+  }[columnsCount as 2 | 3 | 4 | 5] || 'grid grid-cols-1 md:grid-cols-3 gap-6 items-start';
 
   // Setup sensors for click safety
   const sensors = useSensors(
@@ -147,7 +140,7 @@ export function PageGrid({ activePageId }: PageGridProps) {
           </Button>
         </div>
       ) : (
-        // Sections Grid using Masonry Columns
+        // Sections Grid using Standard Grid
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <SortableContext items={sections.map(s => s.id!)} strategy={rectSortingStrategy}>
             <div className={columnsClass}>
@@ -158,7 +151,7 @@ export function PageGrid({ activePageId }: PageGridProps) {
               {/* Quick Add Section Card */}
               <button
                 onClick={() => setIsAddSectionOpen(true)}
-                className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm break-inside-avoid mb-6"
+                className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm"
               >
                 <div className="h-10 w-10 rounded-full bg-card border border-border group-hover:border-violet-500/25 flex items-center justify-center mb-3 transition-colors">
                   <Plus className="h-5 w-5 group-hover:text-violet-400" />

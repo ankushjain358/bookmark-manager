@@ -3,7 +3,7 @@ import { type Section, type Link, db } from '../db/schema';
 import { deleteSection, updateSection, addLink } from '../db/operations';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { LinkItem } from './LinkItem';
-import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical } from 'lucide-react';
+import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical, GripHorizontal } from 'lucide-react';
 import {
   DndContext,
   useSensors,
@@ -30,6 +30,7 @@ import {
 
 interface SectionCardProps {
   section: Section;
+  dragHandleProps?: any;
 }
 
 // Wrapper to make each link card sortable
@@ -73,7 +74,7 @@ function SortableLinkItem({ link }: { link: Link }) {
   );
 }
 
-export function SectionCard({ section }: SectionCardProps) {
+export function SectionCard({ section, dragHandleProps }: SectionCardProps) {
   // Read all links in this section from IndexedDB
   const links = useLiveQuery(
     async () => {
@@ -170,6 +171,17 @@ export function SectionCard({ section }: SectionCardProps) {
         </h3>
         
         <div className="flex items-center gap-1">
+          {/* Section Drag Handle */}
+          {dragHandleProps && (
+            <button
+              {...dragHandleProps}
+              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg focus:outline-none shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              title="Drag to reorder section"
+            >
+              <GripHorizontal className="h-4 w-4" />
+            </button>
+          )}
+
           {/* Add Bookmark button */}
           <Button
             variant="ghost"

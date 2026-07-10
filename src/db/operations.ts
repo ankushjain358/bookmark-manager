@@ -120,6 +120,31 @@ export async function addSection(pageId: number, name: string): Promise<number> 
   });
 }
 
+export async function addSectionAfter(pageId: number, name: string, targetSectionId: number): Promise<number> {
+  return await db.transaction('rw', db.sections, async () => {
+    const targetSection = await db.sections.get(targetSectionId);
+    if (!targetSection) {
+      return await addSection(pageId, name);
+    }
+    const targetOrder = targetSection.order;
+    const sectionsToShift = await db.sections
+      .where('pageId')
+      .equals(pageId)
+      .filter(s => s.order > targetOrder)
+      .toArray();
+    for (const sec of sectionsToShift) {
+      await db.sections.update(sec.id!, { order: sec.order + 1 });
+    }
+    const newSection: Section = {
+      pageId,
+      name: name.trim(),
+      order: targetOrder + 1,
+      createdAt: new Date().toISOString()
+    };
+    return await db.sections.add(newSection);
+  });
+}
+
 export async function updateSection(id: number, updates: Partial<Section>): Promise<void> {
   await db.sections.update(id, updates);
 }

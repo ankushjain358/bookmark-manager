@@ -105,7 +105,7 @@ export function LinkItem({ link }: LinkItemProps) {
 
         {/* Text */}
         <div className="flex flex-col min-w-0 leading-tight">
-          <span className="font-semibold text-foreground text-sm group-hover:text-violet-400 truncate transition-colors duration-200">
+          <span className="font-medium text-foreground text-sm group-hover:text-violet-400 truncate transition-colors duration-200">
             {link.title}
           </span>
           {!hideHostnames && (
