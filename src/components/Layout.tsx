@@ -219,8 +219,15 @@ export function Layout({ activePageId, setActivePageId, children }: LayoutProps)
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 relative overflow-x-hidden">
       
+      {/* Ambient background glow shapes for glassmorphism backdrop */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-violet-400/15 dark:bg-violet-600/5 blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-indigo-400/15 dark:bg-indigo-600/5 blur-[120px]" />
+        <div className="absolute top-[40%] left-[30%] w-[35vw] h-[35vw] rounded-full bg-cyan-400/12 dark:bg-cyan-600/5 blur-[100px]" />
+      </div>
+
       {/* ====================================================================
           TOP NAVIGATION HEADER
           ==================================================================== */}

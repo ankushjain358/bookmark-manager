@@ -147,12 +147,11 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
           </DialogHeader>
 
           <div className="space-y-5 py-2">
-            {/* Platform indicator */}
             <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card text-xs">
               <span className="text-muted-foreground font-semibold uppercase tracking-wider">
                 Environment Build
               </span>
-              <span className="px-2 py-0.5 rounded font-bold bg-violet-950/40 border border-violet-800/30 text-violet-400 font-mono">
+              <span className="px-2 py-0.5 rounded font-bold bg-violet-100 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800/30 text-violet-700 dark:text-violet-400 font-mono">
                 {platform.isExtension ? 'Chrome Extension (MV3)' : 'Standalone Web Site'}
               </span>
             </div>
@@ -287,7 +286,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
               <Button
                 variant="danger"
                 size="sm"
-                className="text-xs font-semibold gap-1.5 h-9 bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-900/20"
+                className="text-xs font-semibold gap-1.5 h-9 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/60"
                 onClick={() => setIsResetConfirmOpen(true)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -318,23 +317,23 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
           </DialogHeader>
 
           {importSummary && (
-            <div className="grid grid-cols-2 gap-2 text-left p-3.5 bg-slate-950/60 rounded-xl border border-slate-900 text-xs font-semibold font-mono space-y-0.5">
-              <div className="text-slate-400">Pages Created:</div>
-              <div className="text-slate-100 text-right">{importSummary.addedPages}</div>
+            <div className="grid grid-cols-2 gap-2 text-left p-3.5 bg-muted/40 rounded-xl border border-border text-xs font-semibold font-mono space-y-0.5">
+              <div className="text-muted-foreground">Pages Created:</div>
+              <div className="text-foreground text-right">{importSummary.addedPages}</div>
 
-              <div className="text-slate-400">Sections Created:</div>
-              <div className="text-slate-100 text-right">{importSummary.addedSections}</div>
+              <div className="text-muted-foreground">Sections Created:</div>
+              <div className="text-foreground text-right">{importSummary.addedSections}</div>
 
-              <div className="text-slate-400">Links Created:</div>
-              <div className="text-slate-100 text-right text-emerald-400">+{importSummary.addedLinks}</div>
+              <div className="text-muted-foreground">Links Created:</div>
+              <div className="text-foreground text-right text-emerald-500">+{importSummary.addedLinks}</div>
 
-              <div className="text-slate-400">Duplicates Skipped:</div>
-              <div className="text-slate-100 text-right text-slate-500">{importSummary.skippedLinks}</div>
+              <div className="text-muted-foreground">Duplicates Skipped:</div>
+              <div className="text-foreground text-right text-slate-500">{importSummary.skippedLinks}</div>
 
               {importSummary.flattenedFoldersCount > 0 && (
                 <>
-                  <div className="text-slate-400">Deep folders flattened to tags:</div>
-                  <div className="text-slate-100 text-right text-violet-400">{importSummary.flattenedFoldersCount}</div>
+                  <div className="text-muted-foreground">Deep folders flattened to tags:</div>
+                  <div className="text-foreground text-right text-violet-500">{importSummary.flattenedFoldersCount}</div>
                 </>
               )}
             </div>

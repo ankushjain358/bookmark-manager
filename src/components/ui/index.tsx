@@ -21,17 +21,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]',
           {
             // Primary: Indigo/Violet gradient with glowing hover
-            'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg hover:from-violet-500 hover:to-indigo-500 hover:shadow-violet-500/25':
+            'bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/10 hover:shadow-lg hover:shadow-violet-500/20 hover:brightness-105 active:scale-[0.98]':
               variant === 'primary',
-            // Secondary: Dark grey slate
-            'bg-secondary text-secondary-foreground hover:bg-secondary/80': variant === 'secondary',
+            // Secondary: Elegant muted glassmorphism
+            'bg-muted/60 text-foreground border border-border/50 hover:bg-muted/80 hover:border-border': variant === 'secondary',
             // Outline: border
-            'border border-border bg-transparent hover:bg-muted/40 hover:text-foreground':
+            'border border-border bg-card/45 backdrop-blur-sm text-foreground hover:bg-muted/60 hover:text-foreground':
               variant === 'outline',
             // Ghost: hover background only
             'hover:bg-muted/40 hover:text-foreground bg-transparent': variant === 'ghost',
             // Danger: red gradient
-            'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-500 hover:to-rose-500':
+            'bg-gradient-to-r from-red-500 to-rose-500 text-white hover:from-red-600 hover:to-rose-600':
               variant === 'danger',
           },
           {
@@ -86,7 +86,7 @@ export const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/75 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-50 bg-black/35 dark:bg-black/75 backdrop-blur-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className
     )}
     {...props}
@@ -103,7 +103,7 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-card/98 p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-1/2 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2 rounded-xl glass-panel text-foreground',
+        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-popover p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-1/2 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2 rounded-xl glass-panel text-foreground',
         className
       )}
       {...props}

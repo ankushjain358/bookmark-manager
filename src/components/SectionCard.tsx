@@ -163,7 +163,7 @@ export function SectionCard({ section, dragHandleProps }: SectionCardProps) {
   };
 
   return (
-    <div className="glass-card flex flex-col p-5 rounded-2xl h-full border border-border shadow-xl bg-card/45">
+    <div className="glass-card flex flex-col p-5 rounded-2xl h-full shadow-md">
       {/* Section Header */}
       <div className="flex items-center justify-between pb-3 border-b border-border select-none">
         <h3 className="font-bold text-foreground tracking-wide text-base truncate">
