@@ -3,7 +3,7 @@ import { type Section, db } from '../db/schema';
 import { addSection } from '../db/operations';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { SectionCard } from './SectionCard';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeftRight, GripVertical } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import {
   DndContext,
@@ -11,11 +11,9 @@ import {
   useSensor,
   PointerSensor,
   TouchSensor,
-  DragOverlay,
-  type DragEndEvent,
-  type DragStartEvent
+  type DragEndEvent
 } from '@dnd-kit/core';
-import { useSortable, SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { useSortable, SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
   Button,
@@ -31,8 +29,8 @@ interface PageGridProps {
   activePageId: number;
 }
 
-// Wrapper to make sections sortable in the grid
-function SortableSection({ section, isDraggingAnySection }: { section: Section; isDraggingAnySection: boolean }) {
+// Simplified Sortable row inside the Reorder Dialog
+function SortableSectionItem({ section }: { section: Section }) {
   const {
     attributes,
     listeners,
@@ -45,30 +43,29 @@ function SortableSection({ section, isDraggingAnySection }: { section: Section; 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 10 : 1
+    zIndex: isDragging ? 20 : 1
   };
 
-  if (isDragging) {
-    return (
-      <div 
-        ref={setNodeRef}
-        style={style}
-        className="break-inside-avoid mb-6 min-h-[220px] w-full rounded-2xl border border-dashed border-violet-500/25 bg-violet-500/5 backdrop-blur-sm"
-      />
-    );
-  }
-
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      className={`relative group break-inside-avoid mb-6 h-auto`}
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center justify-between p-3.5 rounded-xl border border-border bg-card/65 backdrop-blur-sm select-none transition-all ${
+        isDragging ? 'opacity-40 scale-[1.01] border-violet-500/25 shadow-lg' : ''
+      }`}
     >
-      <SectionCard 
-        section={section} 
-        dragHandleProps={{ ...attributes, ...listeners }} 
-        isDraggingAnySection={isDraggingAnySection}
-      />
+      <span className="text-sm font-semibold text-foreground truncate">
+        {section.name}
+      </span>
+      <button
+        {...attributes}
+        {...listeners}
+        type="button"
+        className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg focus:outline-none cursor-grab active:cursor-grabbing hover:bg-muted/40 transition-colors"
+        title="Drag to reorder"
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
     </div>
   );
 }
@@ -109,15 +106,9 @@ export function PageGrid({ activePageId }: PageGridProps) {
     })
   );
 
-  const [activeId, setActiveId] = React.useState<number | null>(null);
-  const isDraggingAnySection = activeId !== null;
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as number);
-  };
+  const [isReorderSectionsOpen, setIsReorderSectionsOpen] = React.useState(false);
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -161,42 +152,41 @@ export function PageGrid({ activePageId }: PageGridProps) {
           </Button>
         </div>
       ) : (
-        // Sections Grid using Masonry Columns
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <SortableContext items={sections.map(s => s.id!)} strategy={rectSortingStrategy}>
-            <div className={columnsClass}>
-              {sections.map(section => (
-                <SortableSection 
-                  key={section.id} 
-                  section={section} 
-                  isDraggingAnySection={isDraggingAnySection}
-                />
-              ))}
+        /* Sections Render Area */
+        <div className="space-y-4">
+          <div className="flex justify-end pr-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsReorderSectionsOpen(true)}
+              className="h-10 text-xs font-semibold gap-1.5 border-border bg-card/45 hover:bg-card/65 rounded-xl shadow-sm"
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5" />
+              Reorder Sections
+            </Button>
+          </div>
 
-              {/* Quick Add Section Card */}
-              <button
-                onClick={() => setIsAddSectionOpen(true)}
-                className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm break-inside-avoid mb-6"
-              >
-                <div className="h-10 w-10 rounded-full bg-card border border-border group-hover:border-violet-500/25 flex items-center justify-center mb-3 transition-colors">
-                  <Plus className="h-5 w-5 group-hover:text-violet-400" />
-                </div>
-                <span className="text-sm font-semibold">Add Section</span>
-              </button>
-            </div>
-          </SortableContext>
-
-          <DragOverlay adjustScale={true}>
-            {activeId ? (
-              <div className="opacity-90 scale-[1.02] shadow-2xl pointer-events-none w-full">
+          <div className={columnsClass}>
+            {sections.map(section => (
+              <div key={section.id} className="break-inside-avoid mb-6">
                 <SectionCard 
-                  section={sections.find(s => s.id === activeId)!} 
-                  isDraggingAnySection={true}
+                  section={section} 
                 />
               </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+            ))}
+
+            {/* Quick Add Section Card */}
+            <button
+              onClick={() => setIsAddSectionOpen(true)}
+              className="flex flex-col items-center justify-center p-8 h-[200px] w-full rounded-2xl border border-dashed border-border hover:border-violet-500/30 hover:bg-card/20 text-muted-foreground hover:text-foreground transition-all duration-300 group select-none shadow-sm break-inside-avoid mb-6"
+            >
+              <div className="h-10 w-10 rounded-full bg-card border border-border group-hover:border-violet-500/25 flex items-center justify-center mb-3 transition-colors">
+                <Plus className="h-5 w-5 group-hover:text-violet-400" />
+              </div>
+              <span className="text-sm font-semibold">Add Section</span>
+            </button>
+          </div>
+        </div>
       )}
 
       {/* ====================================================================
@@ -230,6 +220,36 @@ export function PageGrid({ activePageId }: PageGridProps) {
               <Button type="submit">Create Section</Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ====================================================================
+          REORDER SECTIONS DIALOG
+          ==================================================================== */}
+      <Dialog open={isReorderSectionsOpen} onOpenChange={setIsReorderSectionsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reorder Sections</DialogTitle>
+            <DialogDescription>
+              Drag and drop sections to change their layout order on the page.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+              <SortableContext items={sections.map(s => s.id!)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                  {sections.map(section => (
+                    <SortableSectionItem key={section.id} section={section} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button onClick={() => setIsReorderSectionsOpen(false)}>
+              Done
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

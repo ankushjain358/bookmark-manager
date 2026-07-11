@@ -3,7 +3,7 @@ import { type Section, type Link, db } from '../db/schema';
 import { deleteSection, updateSection, addLink } from '../db/operations';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { LinkItem } from './LinkItem';
-import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical, GripHorizontal } from 'lucide-react';
+import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical } from 'lucide-react';
 import {
   DndContext,
   useSensors,
@@ -30,7 +30,6 @@ import {
 
 interface SectionCardProps {
   section: Section;
-  dragHandleProps?: any;
   isDraggingAnySection?: boolean;
 }
 
@@ -75,7 +74,7 @@ function SortableLinkItem({ link }: { link: Link }) {
   );
 }
 
-export function SectionCard({ section, dragHandleProps, isDraggingAnySection = false }: SectionCardProps) {
+export function SectionCard({ section, isDraggingAnySection = false }: SectionCardProps) {
   // Read all links in this section from IndexedDB
   const links = useLiveQuery(
     async () => {
@@ -123,6 +122,7 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
   const [isMoveOpen, setIsMoveOpen] = React.useState(false);
+  const [isReordering, setIsReordering] = React.useState(false);
 
   // Form inputs
   const [sectionName, setSectionName] = React.useState(section.name);
@@ -172,17 +172,6 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
         </h3>
         
         <div className="flex items-center gap-1">
-          {/* Section Drag Handle */}
-          {dragHandleProps && (
-            <button
-              {...dragHandleProps}
-              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg focus:outline-none shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              title="Drag to reorder section"
-            >
-              <GripHorizontal className="h-4 w-4" />
-            </button>
-          )}
-
           {/* Add Bookmark button */}
           <Button
             variant="ghost"
@@ -210,6 +199,10 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
                 <Edit2 className="mr-2 h-3.5 w-3.5" />
                 Rename Section
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsReordering(true)}>
+                <GripVertical className="mr-2 h-3.5 w-3.5" />
+                Reorder Bookmarks
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsMoveOpen(true)}>
                 <ArrowLeftRight className="mr-2 h-3.5 w-3.5" />
                 Move to Page...
@@ -226,6 +219,20 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
         </div>
       </div>
 
+      {/* Reorder Mode Banner */}
+      {isReordering && !isDraggingAnySection && (
+        <div className="flex items-center justify-between bg-violet-500/10 border border-violet-500/20 px-3 py-2 rounded-xl text-xs text-violet-400 font-semibold mt-3 select-none">
+          <span>Reorder Mode: Drag handles to sort bookmarks</span>
+          <button 
+            type="button"
+            onClick={() => setIsReordering(false)}
+            className="px-2.5 py-1 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-bold transition-all text-[11px] shadow-sm shadow-violet-500/10 active:scale-[0.98]"
+          >
+            Done
+          </button>
+        </div>
+      )}
+
       {/* Sortable List of Links (Hidden when dragging sections to maximize performance and screen visibility) */}
       {!isDraggingAnySection && (
         <div className="flex-1 mt-4">
@@ -241,7 +248,8 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
                 Add Link
               </Button>
             </div>
-          ) : (
+          ) : isReordering ? (
+            /* Reorder Mode: Enable Drag and Drop */
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
               <SortableContext items={links.map(l => l.id!)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-2">
@@ -251,6 +259,13 @@ export function SectionCard({ section, dragHandleProps, isDraggingAnySection = f
                 </div>
               </SortableContext>
             </DndContext>
+          ) : (
+            /* Read Mode (Default): Pure Static List for Lightning-Fast Performance */
+            <div className="space-y-2">
+              {links.map(link => (
+                <LinkItem key={link.id} link={link} />
+              ))}
+            </div>
           )}
         </div>
       )}
