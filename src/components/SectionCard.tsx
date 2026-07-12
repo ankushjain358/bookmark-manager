@@ -3,7 +3,7 @@ import { type Section, type Link, db } from '../db/schema';
 import { deleteSection, updateSection, addLink } from '../db/operations';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { LinkItem } from './LinkItem';
-import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical } from 'lucide-react';
+import { MoreVertical, Plus, Edit2, Trash2, ArrowLeftRight, GripVertical, Loader2 } from 'lucide-react';
 import {
   DndContext,
   useSensors,
@@ -82,7 +82,7 @@ export function SectionCard({ section, isDraggingAnySection = false }: SectionCa
       return records.sort((a, b) => a.order - b.order);
     },
     [section.id]
-  ) || [];
+  );
 
   // Setup sensors for click safety
   const sensors = useSensors(
@@ -101,7 +101,7 @@ export function SectionCard({ section, isDraggingAnySection = false }: SectionCa
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id || !links) return;
 
     const oldIndex = links.findIndex(l => l.id === active.id);
     const newIndex = links.findIndex(l => l.id === over.id);
@@ -236,7 +236,15 @@ export function SectionCard({ section, isDraggingAnySection = false }: SectionCa
       {/* Sortable List of Links (Hidden when dragging sections to maximize performance and screen visibility) */}
       {!isDraggingAnySection && (
         <div className="flex-1 mt-4">
-          {links.length === 0 ? (
+          {links === undefined ? (
+            /* Loading Spinner State */
+            <div className="flex flex-col items-center justify-center py-10 select-none">
+              <div className="animate-spin">
+                <Loader2 className="h-6 w-6 text-violet-500" />
+              </div>
+              <span className="text-[11px] text-muted-foreground mt-2 font-medium animate-pulse">Loading bookmarks...</span>
+            </div>
+          ) : links.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4 rounded-xl border border-dashed border-border text-center">
               <span className="text-xs text-muted-foreground mb-2">No bookmarks in this section</span>
               <Button
@@ -274,7 +282,7 @@ export function SectionCard({ section, isDraggingAnySection = false }: SectionCa
       {isDraggingAnySection && (
         <div className="mt-4 py-5 px-4 rounded-xl border border-dashed border-border/70 bg-muted/20 text-center select-none">
           <span className="text-xs font-semibold text-muted-foreground font-mono">
-            {links.length} {links.length === 1 ? 'bookmark' : 'bookmarks'}
+            {(links || []).length} {(links || []).length === 1 ? 'bookmark' : 'bookmarks'}
           </span>
         </div>
       )}

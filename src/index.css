@@ -39,7 +39,7 @@
   }
 
   .dark {
-    --background: 222 30% 10%; /* Lighter main background */
+    --background: 222 15% 18%; /* Noticeably lighter background canvas */
     --foreground: 213 31% 91%;
 
     --muted: 223 47% 11%;
@@ -48,7 +48,7 @@
     --popover: 224 71% 4%;
     --popover-foreground: 213 31% 91%;
 
-    --card: 224 71% 8%;
+    --card: 224 71% 8%; /* Deeper card background */
     --card-foreground: 213 31% 91%;
 
     --border: 217 32% 17%;
@@ -177,4 +177,18 @@
 .dark [cmdk-item][aria-selected='true'] {
   background-color: rgba(139, 92, 246, 0.15);
   color: white;
+}
+
+/* Custom keyframes to ensure spinner rotations never freeze */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite !important;
 }

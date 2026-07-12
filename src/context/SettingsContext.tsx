@@ -7,6 +7,8 @@ interface SettingsContextType {
   setColumnsCount: (count: number) => void;
   hideHostnames: boolean;
   setHideHostnames: (hide: boolean) => void;
+  enableFavicons: boolean;
+  setEnableFavicons: (enable: boolean) => void;
 }
 
 const SettingsContext = React.createContext<SettingsContextType | undefined>(undefined);
@@ -35,6 +37,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     return stored === 'true'; // Default is false
   });
 
+  // Enable Favicons state
+  const [enableFavicons, setEnableFaviconsState] = React.useState<boolean>(() => {
+    const stored = localStorage.getItem('linkhub_enable_favicons');
+    return stored !== 'false'; // Default is true
+  });
+
   // Apply theme class to document element on changes
   React.useEffect(() => {
     if (theme === 'light') {
@@ -61,6 +69,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('linkhub_hide_hostnames', hide.toString());
   };
 
+  const setEnableFavicons = (enable: boolean) => {
+    setEnableFaviconsState(enable);
+    localStorage.setItem('linkhub_enable_favicons', enable.toString());
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -69,7 +82,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         columnsCount,
         setColumnsCount,
         hideHostnames,
-        setHideHostnames
+        setHideHostnames,
+        enableFavicons,
+        setEnableFavicons
       }}
     >
       {children}

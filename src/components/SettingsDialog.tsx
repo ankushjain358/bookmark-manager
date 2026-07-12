@@ -28,7 +28,7 @@ interface ImportSummary {
 }
 
 export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
-  const { hideHostnames, setHideHostnames } = useSettings();
+  const { hideHostnames, setHideHostnames, enableFavicons, setEnableFavicons } = useSettings();
   const [importMode, setImportMode] = React.useState<'merge' | 'replace'>('merge');
   const [importSummary, setImportSummary] = React.useState<ImportSummary | null>(null);
   const [summaryOpen, setSummaryOpen] = React.useState(false);
@@ -37,6 +37,26 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
   // File Input References
   const jsonInputRef = React.useRef<HTMLInputElement>(null);
   const htmlInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Local draft states
+  const [draftHideHostnames, setDraftHideHostnames] = React.useState(hideHostnames);
+  const [draftEnableFavicons, setDraftEnableFavicons] = React.useState(enableFavicons);
+
+  // Sync draft states when dialog opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setDraftHideHostnames(hideHostnames);
+      setDraftEnableFavicons(enableFavicons);
+    }
+  }, [isOpen, hideHostnames, enableFavicons]);
+
+  // Apply settings and close
+  const handleDone = () => {
+    setHideHostnames(draftHideHostnames);
+    setEnableFavicons(draftEnableFavicons);
+    onOpenChange(false);
+    window.location.reload();
+  };
 
   // Export JSON Handler
   const handleExportJson = async () => {
@@ -131,7 +151,16 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
     // Force reload to flush FlexSearch indexes
     window.location.reload();
   };
-
+  // Favicon cache clear handler
+  const handleClearFaviconCache = async () => {
+    try {
+      await db.faviconCache.clear();
+      onOpenChange(false);
+      window.location.reload();
+    } catch (e) {
+      console.error('Failed to clear favicon cache', e);
+    }
+  };
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -165,14 +194,31 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                 <span className="text-xs font-semibold text-foreground">Hide Bookmark Hostnames</span>
                 <button
                   type="button"
-                  onClick={() => setHideHostnames(!hideHostnames)}
+                  onClick={() => setDraftHideHostnames(!draftHideHostnames)}
                   className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    hideHostnames ? 'bg-violet-600' : 'bg-slate-750'
+                    draftHideHostnames ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-800'
                   }`}
                 >
                   <span
                     className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      hideHostnames ? 'translate-x-4' : 'translate-x-0'
+                      draftHideHostnames ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between mt-2 select-none border-t border-border/40 pt-2">
+                <span className="text-xs font-semibold text-foreground">Load Bookmark Favicons</span>
+                <button
+                  type="button"
+                  onClick={() => setDraftEnableFavicons(!draftEnableFavicons)}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    draftEnableFavicons ? 'bg-violet-600' : 'bg-slate-300 dark:bg-slate-800'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      draftEnableFavicons ? 'translate-x-4' : 'translate-x-0'
                     }`}
                   />
                 </button>
@@ -282,7 +328,7 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
               Importing deep nesting HTML folders automatically flattens folders deeper than 2 levels into tag lists (e.g. <code>Work/Reading/ML</code>) to keep sections tidy. Use <strong>JSON</strong> format for complete, lossless backups.
             </div>
 
-            <div className="border-t border-border pt-4 flex justify-between items-center">
+            <div className="border-t border-border pt-4 flex flex-wrap justify-between items-center gap-3">
               <Button
                 variant="danger"
                 size="sm"
@@ -293,9 +339,21 @@ export function SettingsDialog({ isOpen, onOpenChange }: SettingsDialogProps) {
                 Factory Hard Reset
               </Button>
               
-              <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-                Done
-              </Button>
+              <div className="flex gap-2.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs font-semibold gap-1.5 h-9 border-border bg-transparent hover:bg-muted/40"
+                  onClick={handleClearFaviconCache}
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Clear Favicons
+                </Button>
+
+                <Button variant="outline" size="sm" onClick={handleDone}>
+                  Done
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type Link } from '../db/schema';
+import { type Link, db } from '../db/schema';
 import { getFavicon } from '../db/favicon';
 import { deleteLink, updateLink } from '../db/operations';
 import { useSettings } from '../context/SettingsContext';
@@ -23,7 +23,7 @@ interface LinkItemProps {
 }
 
 export function LinkItem({ link }: LinkItemProps) {
-  const { hideHostnames } = useSettings();
+  const { hideHostnames, enableFavicons } = useSettings();
   const [faviconUrl, setFaviconUrl] = React.useState<string | null>(null);
   const [imgFailed, setImgFailed] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
@@ -36,21 +36,37 @@ export function LinkItem({ link }: LinkItemProps) {
 
   // Asynchronously resolve favicon from cache or API
   React.useEffect(() => {
+    if (!enableFavicons) {
+      setImgFailed(true);
+      setFaviconUrl(null);
+      return;
+    }
+
     let active = true;
     setImgFailed(false);
 
     getFavicon(link.url, link.faviconDomain)
       .then(res => {
-        if (active) setFaviconUrl(res);
+        if (active) {
+          if (res === 'failed' || !res) {
+            setImgFailed(true);
+            setFaviconUrl(null);
+          } else {
+            setFaviconUrl(res);
+          }
+        }
       })
       .catch(() => {
-        if (active) setFaviconUrl(null);
+        if (active) {
+          setFaviconUrl(null);
+          setImgFailed(true);
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [link.url, link.faviconDomain]);
+  }, [link.url, link.faviconDomain, enableFavicons]);
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +109,18 @@ export function LinkItem({ link }: LinkItemProps) {
             <img
               src={faviconUrl}
               alt=""
-              onError={() => setImgFailed(true)}
+              loading="lazy"
+              onError={() => {
+                setImgFailed(true);
+                // Save failed state to cache so we never request it again
+                if (link.faviconDomain) {
+                  db.faviconCache.put({
+                    domain: link.faviconDomain,
+                    dataUrl: 'failed',
+                    fetchedAt: new Date().toISOString()
+                  }).catch(() => {});
+                }
+              }}
               className="h-5 w-5 object-contain"
             />
           ) : (

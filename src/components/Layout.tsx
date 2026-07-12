@@ -75,7 +75,8 @@ function SortableTab({ page, isActive, onClick, onRename, onDelete }: SortableTa
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative flex items-center gap-1.5 h-10 px-4 rounded-xl border text-sm font-semibold transition-all duration-200 select-none ${
+      onClick={onClick}
+      className={`group relative flex items-center gap-1.5 h-10 px-4 rounded-xl border text-sm font-semibold transition-all duration-200 select-none cursor-pointer ${
         isActive
           ? 'bg-gradient-to-r from-violet-600 to-indigo-600 border-transparent text-white shadow-md'
           : 'bg-card/40 border-border text-muted-foreground hover:text-foreground hover:border-slate-400 dark:hover:border-slate-700'
@@ -83,10 +84,9 @@ function SortableTab({ page, isActive, onClick, onRename, onDelete }: SortableTa
     >
       {/* Click target for switching pages */}
       <span
-        onClick={onClick}
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing mr-1"
+        className="cursor-grab active:cursor-grabbing mr-1 flex-1 h-full flex items-center"
       >
         {page.name}
       </span>
@@ -94,7 +94,10 @@ function SortableTab({ page, isActive, onClick, onRename, onDelete }: SortableTa
       {/* Settings dropdown for page */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="p-0.5 rounded text-slate-500 hover:text-slate-100 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200">
+          <button 
+            onClick={(e) => e.stopPropagation()}
+            className="p-0.5 rounded text-slate-500 hover:text-slate-100 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
+          >
             <MoreHorizontal className="h-3.5 w-3.5" />
           </button>
         </DropdownMenuTrigger>
